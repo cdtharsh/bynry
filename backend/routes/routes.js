@@ -1,6 +1,7 @@
 import express from 'express';
 import Profile from '../models/profile.js';
-import router from 'express.r'
+
+const router = express.Router();
 
 // GET all profiles
 router.get('/', async (req, res) => {

@@ -6,9 +6,10 @@ const ProfileSchema = new mongoose.Schema({
     description: { type: String, required: true },
     address: { type: String, required: true },
     coordinates: {
-      lat: { type: Number, required: true },
-      lng: { type: Number, required: true },
+        lat: { type: Number, required: true },
+        lng: { type: Number, required: true },
     },
-  });
+});
 
-export default ('Profile', profileSchema);
+const Profile = mongoose.model('Profile', ProfileSchema);
+export default Profile;

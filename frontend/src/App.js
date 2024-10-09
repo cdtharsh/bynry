@@ -1,31 +1,83 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import ProfileCard from './components/ProfileCard';
-import './App.css'; // Importing CSS
+import ProfileList from './components/ProfileList';
+import ProfileView from './components/ProfileView';
+import './style.css';
 
-function App() {
-  const [profiles, setProfiles] = useState([]);
+const App = () => {
+  const [profiles, setProfiles] = useState([]); // State to store profiles
+  const [selectedProfile, setSelectedProfile] = useState(null);
 
+  // Dummy profiles in case the API call fails
+  const dummyProfiles = [
+    {
+      id: 1,
+      name: 'John Doe',
+      description: 'Software Engineer',
+      photo: 'https://via.placeholder.com/150',
+    },
+    {
+      id: 2,
+      name: 'Jane Smith',
+      description: 'Product Manager',
+      photo: 'https://via.placeholder.com/150',
+    },
+    {
+      id: 3,
+      name: 'Sara Wilson',
+      description: 'UX Designer',
+      photo: 'https://via.placeholder.com/150',
+    },
+  ];
+
+  // Fetch profiles from backend or fallback to dummy profiles
   useEffect(() => {
-    axios.get('http://localhost:5000/api/profiles')
-      .then(response => {
-        setProfiles(response.data);
-      })
-      .catch(error => {
-        console.error('There was an error fetching the profiles!', error);
-      });
-  }, []);
+    const fetchProfiles = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/profiles');
+        if (!response.ok) throw new Error('Network response was not ok');
+        const data = await response.json();
+
+        // Format incoming profiles to match the dummy profile structure
+        const formattedProfiles = data.map(profile => ({
+          id: profile.id, // Ensure the backend data has an 'id'
+          name: profile.name || 'Unknown Name', // Fallback to 'Unknown Name' if no name is present
+          description: profile.description || 'No description provided',
+          photo: profile.photo || 'https://via.placeholder.com/150', // Use a placeholder image if no photo is provided
+        }));
+
+        setProfiles(formattedProfiles);
+      } catch (error) {
+        console.error('Error fetching profiles, using dummy data:', error);
+        setProfiles(dummyProfiles); // Use dummy profiles on error
+      }
+    };
+
+    fetchProfiles();
+  }, []); // Dependency array is empty, will run once after mount
+
+  const handleProfileSelect = (profile) => {
+    setSelectedProfile(profile);
+  };
+
+  const handleBack = () => {
+    setSelectedProfile(null); // Reset profile selection
+  };
 
   return (
-    <div className="App">
-      <h1 className="title">User Profiles</h1>
-      <div className="profile-container">
-        {profiles.map(profile => (
-          <ProfileCard key={profile._id} profile={profile} />
-        ))}
-      </div>
+    <div className="app">
+      <h1 style={{ textAlign: 'center' }}>Profile Viewer Application</h1>
+      {!selectedProfile ? (
+        <ProfileList profiles={profiles} onProfileSelect={handleProfileSelect} />
+      ) : (
+        <ProfileView profile={selectedProfile} />
+      )}
+      {selectedProfile && (
+        <button className="back-button" onClick={handleBack}>
+          Back to Profile List
+        </button>
+      )}
     </div>
   );
-}
+};
 
 export default App;

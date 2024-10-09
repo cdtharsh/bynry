@@ -9,4 +9,4 @@ const profileSchema = new mongoose.Schema(
     }
 );
 
-export default profileSchema;
+export default ('Profile', profileSchema);

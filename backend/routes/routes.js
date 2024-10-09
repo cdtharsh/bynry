@@ -3,31 +3,35 @@ import Profile from '../models/profile.js';
 
 const router = express.Router();
 
-// GET all profiles
 router.get('/', async (req, res) => {
-  try {
-    const profiles = await Profile.find();
+    const profiles = await Profile.find({});
     res.json(profiles);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
-
-// POST a new profile
-router.post('/', async (req, res) => {
-  const profile = new Profile({
-    name: req.body.name,
-    profileImg: req.body.profileImg,
-    description: req.body.description,
-    address: req.body.address
   });
-
-  try {
-    const newProfile = await profile.save();
+  
+  // Fetch a single profile by ID
+  router.get('/:id', async (req, res) => {
+    const profile = await Profile.findById(req.params.id);
+    res.json(profile);
+  });
+  
+  // Add a new profile
+  router.post('/', async (req, res) => {
+    const newProfile = new Profile(req.body);
+    await newProfile.save();
     res.status(201).json(newProfile);
-  } catch (error) {
-    res.status(400).json({ message: error.message });
-  }
-});
+  });
+  
+  // Update a profile
+  router.put('/:id', async (req, res) => {
+    const updatedProfile = await Profile.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updatedProfile);
+  });
+  
+  // Delete a profile
+  router.delete('/:id', async (req, res) => {
+    await Profile.findByIdAndDelete(req.params.id);
+    res.status(204).send();
+  });
+  
 
 export default router;
